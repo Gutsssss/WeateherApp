@@ -1,58 +1,131 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+  <div class="background">
+  <div class="backgorund-search">
+  <label>Выберете город
+    <select  class="select" v-model="state.selected">
+      <option  class="select-option" selected disabled hidden>Выберите</option>
+    <option class="select-option" v-for="name of nameOfCity" :value="name" :key="name">{{ name }}</option>
+</select>
+</label>
+<button class="button" @click="getWeather()">Получить данные</button>
+</div>
+   <v-card
+    class="mx-auto"
+    max-width="300"
+  >
+  <v-card-title>Weather in {{ state.city }}</v-card-title>
+  
+    <v-card-item>
+      <template v-slot:subtitle>
+       {{ state.weather }}
+       <div id="icon" src='{{img}}'></div>
+      </template>
+      
+    </v-card-item>
+
+    <v-card-text class="py-0">
+      <v-row align="center" no-gutters>
+        <v-col
+          class="text-h2"
+          cols="6"
+        >
+          {{state.temp}}°
+        </v-col>
+      </v-row>
+    </v-card-text>
+
+    <div class="d-flex py-3 justify-space-between">
+      <v-list-item
+        density="compact"
+      >
+        <v-list-item-subtitle>Wind {{ state.wind }} m/s</v-list-item-subtitle>
+      </v-list-item>
+
+      <v-list-item
+        density="compact"
+        prepend-icon="mdi-weather-pouring"
+      >
+        <v-list-item-subtitle>Humidity {{state.humidity}}</v-list-item-subtitle>
+      </v-list-item>
+    </div>
+  </v-card>
+</div>
 </template>
 
-<script>
-export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
+<script setup>
+import { reactive,onMounted } from 'vue';
+import axios from 'axios';
+let url = "http://api.openweathermap.org/data/2.5/weather/?&appid=d0c04e8b31b988d4ffa7157d1c0f14b6"
+let nameOfCity = reactive(['Moscow','London','Los Angeles','Minsk','San Francisco'])
+const state = reactive({
+  temp:null,
+  wind:null,
+  city:null,
+  weather:null,
+  selected:nameOfCity,
+  humidity:null,
+})
+
+const getWeather = onMounted(() => {
+  axios.get(`${url}&q=${state.selected}`)
+  .then((response) => {
+    let img = reactive(document.querySelector('#icon'))
+    state.temp = Math.round(response.data.main.temp - 273,15)
+    state.wind = response.data.wind.speed
+    state.city = response.data.name
+    state.weather = response.data.weather[0].main
+    state.humidity = response.data.main.humidity
+    let icon = response.data.weather[0].icon
+    img.innerHTML = `<img style="width:100px" src="https://openweathermap.org/img/wn/${icon}.png">`
+  })
+})
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
+
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+.background {
+  width: 100%;
+  height: 500px;
+  margin: auto;
+  text-align: center;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+.backgorund-search {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 20px;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+* {
+  color: rgb(255, 255, 255);
 }
-a {
-  color: #42b983;
+.select {
+  width: 300px;
+  margin-top: 10px;
+  color: rgb(255, 255, 255);
+  font-size: 24px;
+  background: rgb(104, 89, 241);
+  border-radius: 15px;
+  text-align: center;
+  height: 40px;
+}
+.select-option {
+  background-color: rgb(104, 89, 241);
+  border-radius: 10px;
+}
+.button {
+  width: 150px;
+  height: 40px;
+  border-radius: 15px;
+  background: rgb(104, 89, 241);
+}
+.v-card {
+  background-color: rgb(104, 89, 241);
+  margin-top: 20px;
+  border-radius: 15px;
+}
+.iconImg {
+  widows: 100px;
+  height: 100px;
+  padding-left: 50px;
 }
 </style>
