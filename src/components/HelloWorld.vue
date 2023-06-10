@@ -31,6 +31,11 @@
         >
           {{state.temp}}°
         </v-col>
+        <v-col
+        class="text-h4"
+        >
+          {{state.time}}
+        </v-col>
       </v-row>
     </v-card-text>
 
@@ -62,8 +67,9 @@ const state = reactive({
   wind:null,
   city:null,
   weather:null,
-  selected:nameOfCity,
+  selected:nameOfCity[0],
   humidity:null,
+  time:null
 })
 
 const getWeather = onMounted(() => {
@@ -77,6 +83,9 @@ const getWeather = onMounted(() => {
     state.humidity = response.data.main.humidity
     let icon = response.data.weather[0].icon
     img.innerHTML = `<img style="width:100px" src="https://openweathermap.org/img/wn/${icon}.png">`
+    var s = new Date(response.data.dt).toLocaleTimeString("en-US").split('')
+    let digit = s.slice(0,4).join('')
+    state.time = digit
   })
 })
 </script>
