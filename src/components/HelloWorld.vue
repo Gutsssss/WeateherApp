@@ -1,95 +1,92 @@
 <template>
   <div class="background">
-  <div class="backgorund-search">
-  <label>Выберете город
-    <select  class="select" v-model="state.selected">
-      <option  class="select-option" selected disabled hidden>Выберите</option>
-    <option class="select-option" v-for="name of nameOfCity" :value="name" :key="name">{{ name }}</option>
-</select>
-</label>
-<button class="button" @click="getWeather()">Получить данные</button>
-</div>
-   <v-card
-    class="mx-auto"
-    max-width="300"
-  >
-  <v-card-title>Weather in {{ state.city }}</v-card-title>
-  
-    <v-card-item>
-      <template v-slot:subtitle>
-       {{ state.weather }}
-       <div id="icon" src='{{img}}'></div>
-      </template>
-      
-    </v-card-item>
+    <SelectCity
+      v-model:value="state.selected"
+      :value="state.selected"
+      :cities="nameOfCity"
+      @get-weather="getWeather()"
+    />
+    <v-card class="mx-auto" max-width="300">
+      <v-card-title>Weather in {{ state.city }}</v-card-title>
 
-    <v-card-text class="py-0">
-      <v-row align="center" no-gutters>
-        <v-col
-          class="text-h2"
-          cols="6"
-        >
-          {{state.temp}}°
-        </v-col>
-        <v-col
-        class="text-h4"
-        >
-          {{state.time}}
-        </v-col>
-      </v-row>
-    </v-card-text>
+      <v-card-item>
+        <template v-slot:subtitle>
+          {{ state.weather }}
+          <div id="icon" src="{{img}}"></div>
+        </template>
+      </v-card-item>
 
-    <div class="d-flex py-3 justify-space-between">
-      <v-list-item
-        density="compact"
-      >
-        <v-list-item-subtitle>Wind {{ state.wind }} m/s</v-list-item-subtitle>
-      </v-list-item>
+      <v-card-text class="py-0">
+        <v-row align="center" no-gutters>
+          <v-col class="text-h2" cols="6"> {{ state.temp }}° </v-col>
+          <v-col class="text-h4">
+            {{ state.time }}
+          </v-col>
+        </v-row>
+      </v-card-text>
 
-      <v-list-item
-        density="compact"
-        prepend-icon="mdi-weather-pouring"
-      >
-        <v-list-item-subtitle>Humidity {{state.humidity}}</v-list-item-subtitle>
-      </v-list-item>
-    </div>
-  </v-card>
-</div>
+      <div class="d-flex py-3 justify-space-between">
+        <v-list-item density="compact">
+          <v-list-item-subtitle>Wind {{ state.wind }} m/s</v-list-item-subtitle>
+        </v-list-item>
+
+        <v-list-item density="compact" prepend-icon="mdi-weather-pouring">
+          <v-list-item-subtitle
+            >Humidity {{ state.humidity }}</v-list-item-subtitle
+          >
+        </v-list-item>
+      </div>
+    </v-card>
+    <WeatherCard
+      v-model:city="state.city"
+      v-model:weather="state.weather"
+      v-model:temp="state.temp"
+      v-model:time="state.time"
+      v-model:wind="state.wind"
+      v-model:humidity="state.humidity"
+    />
+  </div>
 </template>
-
 <script setup>
-import { reactive,onMounted } from 'vue';
-import axios from 'axios';
-let url = "http://api.openweathermap.org/data/2.5/weather/?&appid=d0c04e8b31b988d4ffa7157d1c0f14b6"
-let nameOfCity = reactive(['Moscow','London','Los Angeles','Minsk','San Francisco'])
+import WeatherCard from "./WeatherCard.vue";
+import SelectCity from "@/components/SelectCity.vue";
+import { reactive, onMounted } from "vue";
+import axios from "axios";
+let url =
+  "http://api.openweathermap.org/data/2.5/weather/?&appid=d0c04e8b31b988d4ffa7157d1c0f14b6";
+let nameOfCity = reactive([
+  { name: "Moscow", value: 1 },
+  { name: "London", value: 2 },
+  { name: "Los Angeles", value: 3 },
+  { name: "Minsk", value: 4 },
+  { name: "San Francisco", value: 5 },
+]);
 const state = reactive({
-  temp:null,
-  wind:null,
-  city:null,
-  weather:null,
-  selected:nameOfCity[0],
-  humidity:null,
-  time:null
-})
+  temp: null,
+  wind: null,
+  city: null,
+  weather: null,
+  selected: nameOfCity[0].name,
+  humidity: null,
+  time: null,
+});
 
 const getWeather = onMounted(() => {
-  axios.get(`${url}&q=${state.selected}`)
-  .then((response) => {
-    let img = reactive(document.querySelector('#icon'))
-    state.temp = Math.round(response.data.main.temp - 273,15)
-    state.wind = response.data.wind.speed
-    state.city = response.data.name
-    state.weather = response.data.weather[0].main
-    state.humidity = response.data.main.humidity
-    let icon = response.data.weather[0].icon
-    img.innerHTML = `<img style="width:100px" src="https://openweathermap.org/img/wn/${icon}.png">`
-    var s = new Date(response.data.dt).toLocaleTimeString("en-US").split('')
-    let digit = s.slice(0,4).join('')
-    state.time = digit
-  })
-})
+  axios.get(`${url}&q=${state.selected}`).then((response) => {
+    let img = reactive(document.querySelector("#icon"));
+    state.temp = Math.round(response.data.main.temp - 273, 15);
+    state.wind = response.data.wind.speed;
+    state.city = response.data.name;
+    state.weather = response.data.weather[0].main;
+    state.humidity = response.data.main.humidity;
+    let icon = response.data.weather[0].icon;
+    img.innerHTML = `<img style="width:100px" src="https://openweathermap.org/img/wn/${icon}.png">`;
+    var s = new Date(response.data.dt).toLocaleTimeString("en-US").split("");
+    let digit = s.slice(0, 4).join("");
+    state.time = digit;
+  });
+});
 </script>
-
 
 <style scoped>
 .background {
