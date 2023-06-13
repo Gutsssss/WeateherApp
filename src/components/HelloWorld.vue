@@ -6,13 +6,13 @@
       :cities="nameOfCity"
       @get-weather="getWeather()"
     />
-    <v-card class="mx-auto" max-width="300">
+    <!-- <v-card class="mx-auto" max-width="300">
       <v-card-title>Weather in {{ state.city }}</v-card-title>
 
       <v-card-item>
         <template v-slot:subtitle>
           {{ state.weather }}
-          <div id="icon" src="{{img}}"></div>
+          <div id="icon" v-html="state.icon" ></div>
         </template>
       </v-card-item>
 
@@ -36,14 +36,15 @@
           >
         </v-list-item>
       </div>
-    </v-card>
+    </v-card> -->
     <WeatherCard
-      v-model:city="state.city"
-      v-model:weather="state.weather"
-      v-model:temp="state.temp"
-      v-model:time="state.time"
-      v-model:wind="state.wind"
-      v-model:humidity="state.humidity"
+      :city="state.city"
+      :weather="state.weather"
+      :temp="state.temp"
+      :time="state.time"
+      :wind="state.wind"
+      :humidity="state.humidity"
+      :img="state.icon"
     />
   </div>
 </template>
@@ -69,18 +70,18 @@ const state = reactive({
   selected: nameOfCity[0].name,
   humidity: null,
   time: null,
+  icon:null
 });
 
 const getWeather = onMounted(() => {
   axios.get(`${url}&q=${state.selected}`).then((response) => {
-    let img = reactive(document.querySelector("#icon"));
     state.temp = Math.round(response.data.main.temp - 273, 15);
     state.wind = response.data.wind.speed;
     state.city = response.data.name;
     state.weather = response.data.weather[0].main;
     state.humidity = response.data.main.humidity;
-    let icon = response.data.weather[0].icon;
-    img.innerHTML = `<img style="width:100px" src="https://openweathermap.org/img/wn/${icon}.png">`;
+    let iconImg = response.data.weather[0].icon;
+    state.icon = `<img style="width:100px" src="https://openweathermap.org/img/wn/${iconImg}.png">`;
     var s = new Date(response.data.dt).toLocaleTimeString("en-US").split("");
     let digit = s.slice(0, 4).join("");
     state.time = digit;

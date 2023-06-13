@@ -8,7 +8,7 @@
     <v-card-item>
       <template v-slot:subtitle>
        {{ weather }}
-       <div id="icon" src='{{img}}'></div>
+       <div id="icon" v-html="img"></div>
       </template>
       
     </v-card-item>
@@ -33,7 +33,7 @@
       <v-list-item
         density="compact"
       >
-        <v-list-item-subtitle>Wind {{wind }} m/s</v-list-item-subtitle>
+        <v-list-item-subtitle>Wind {{ wind }} m/s</v-list-item-subtitle>
       </v-list-item>
 
       <v-list-item
@@ -52,9 +52,9 @@ const props = defineProps({
     city:String,
     weather:String,
     temp:Number,
-    time:Number,
+    time:String,
     wind:Number,
-    humidity:String,
+    humidity:Number,
     img:String
 })
 console.log(props)
